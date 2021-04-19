@@ -3,14 +3,12 @@
 	import Square from '$lib/Square.svelte';
 
 	let [board, clicked] = initBoard();
-	console.log(board);
 	// 	mines.push(coord);
 
 	// 	mines = mines;
 
 	// 	count++;
 	// }
-	// console.log(mines);
 
 	// let row = 0;
 	// let column = 0;
@@ -58,7 +56,6 @@
 	// 		window.removeEventListener('keydown', handleNumbers);
 	// 	};
 	// });
-	$: console.log(clicked);
 </script>
 
 <div class="container">

@@ -1,4 +1,4 @@
-import { getRandomInt } from '$lib/foo';
+import { getRandomInt, arrayIncludesTuple } from '$lib/foo';
 
 interface Mine {
 	type: 'mine';
@@ -41,7 +41,7 @@ export function initBoard(): [Array<Array<Square>>, Array<Array<boolean>>] {
 		let coord;
 		do {
 			coord = [getRandomInt(10), getRandomInt(10)];
-		} while (mines.includes(coord));
+		} while (arrayIncludesTuple(mines, coord));
 
 		count++;
 
