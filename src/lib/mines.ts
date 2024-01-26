@@ -107,6 +107,12 @@ export class Board {
   };
 
   click = (i: number, j: number) => {
+    if (this.status === 'not started') {
+      while (this.board[i][j].mine) {
+        this.board = this.initBoard();
+      }
+    }
+
     if (this.status === 'won' || this.status === 'lost') {
       return;
     }
