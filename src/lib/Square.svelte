@@ -1,30 +1,26 @@
 <script lang="ts">
-	import type { Square } from '$lib/mines';
+  import type { Square } from '$lib/mines';
 
-	export let clicked: boolean;
-	export let square: Square;
-	export let onClick: () => void;
+  export let square: Square;
+  export let onClick: () => void;
+
+  let onRightClick = (e: MouseEvent) => {
+    e.preventDefault();
+    square.rightClick();
+    square = square;
+  };
 </script>
 
-<div class="square" class:clicked on:click={onClick}>
-	{clicked ? (square.type === 'mine' ? '*' : square.count === 0 ? ' ' : square.count) : ' '}
-</div>
-
-<style>
-	.square {
-		width: 50px;
-		height: 50px;
-		border: 0.5px solid black;
-
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: center;
-
-		background: blue;
-	}
-
-	.clicked {
-		background: white;
-	}
-</style>
+<button
+  class={`flex h-[20px] w-[20px] flex-col items-center justify-center border border-black
+		${square.status === 'revealed' ? 'bg-white' : 'bg-blue-500'}
+	`}
+  on:click={onClick}
+  on:contextmenu={onRightClick}
+>
+  {#if square.status === 'flagged'}
+    <span class="text-white">F</span>
+  {:else if square.status === 'revealed'}
+    {square.mine ? '*' : square.numMineNeighbors === 0 ? ' ' : square.numMineNeighbors}
+  {/if}
+</button>

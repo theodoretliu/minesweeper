@@ -1,28 +1,32 @@
 {
-	"name": "sudoku",
-	"version": "0.0.1",
-	"scripts": {
-		"dev": "svelte-kit dev",
-		"build": "svelte-kit build",
-		"start": "svelte-kit start",
-		"lint": "prettier --check . && eslint --ignore-path .gitignore .",
-		"format": "prettier --write ."
-	},
-	"devDependencies": {
-		"@sveltejs/adapter-node": "next",
-		"@sveltejs/kit": "next",
-		"@typescript-eslint/eslint-plugin": "^4.19.0",
-		"@typescript-eslint/parser": "^4.19.0",
-		"eslint": "^7.22.0",
-		"eslint-config-prettier": "^8.1.0",
-		"eslint-plugin-svelte3": "^3.1.0",
-		"prettier": "~2.2.1",
-		"prettier-plugin-svelte": "^2.2.0",
-		"svelte": "^3.29.0",
-		"svelte-preprocess": "^4.0.0",
-		"tslib": "^2.0.0",
-		"typescript": "^4.0.0",
-		"vite": "^2.1.0"
-	},
-	"type": "module"
+  "name": "minesweeper",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-auto": "^3.0.0",
+    "@sveltejs/adapter-node": "^4.0.1",
+    "@sveltejs/adapter-static": "^3.0.1",
+    "@sveltejs/kit": "^2.0.0",
+    "@sveltejs/vite-plugin-svelte": "^3.0.0",
+    "autoprefixer": "^10.4.17",
+    "postcss": "^8.4.33",
+    "prettier": "^3.2.4",
+    "prettier-plugin-svelte": "^3.1.2",
+    "prettier-plugin-tailwindcss": "^0.5.11",
+    "svelte": "^4.2.7",
+    "svelte-check": "^3.6.0",
+    "svelte-preprocess": "^5.1.3",
+    "tailwindcss": "^3.4.1",
+    "tslib": "^2.4.1",
+    "typescript": "^5.0.0",
+    "vite": "^5.0.3"
+  },
+  "type": "module"
 }

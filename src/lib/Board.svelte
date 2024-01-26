@@ -1,94 +1,47 @@
 <script lang="ts">
-	import { initBoard, click } from './mines';
-	import Square from '$lib/Square.svelte';
+  import { Board } from './mines';
+  import Timer from '$lib/Timer.svelte';
+  import Square from '$lib/Square.svelte';
 
-	let [board, clicked] = initBoard();
-	// 	mines.push(coord);
+  let board = new Board();
 
-	// 	mines = mines;
+  let startTime: number | undefined;
+  let endTime: number | undefined;
 
-	// 	count++;
-	// }
-
-	// let row = 0;
-	// let column = 0;
-
-	// const handleArrowKeys = (e: KeyboardEvent) => {
-	// 	switch (e.key) {
-	// 		case 'ArrowDown':
-	// 			row = Math.min(8, row + 1);
-	// 			break;
-	// 		case 'ArrowUp':
-	// 			row = Math.max(0, row - 1);
-	// 			break;
-	// 		case 'ArrowLeft':
-	// 			column = Math.max(0, column - 1);
-	// 			break;
-	// 		case 'ArrowRight':
-	// 			column = Math.min(8, column + 1);
-	// 			break;
-	// 	}
-	// };
-
-	// const selectSquare = (i, j) => {
-	// 	row = i;
-	// 	column = j;
-	// };
-
-	// const handleNumbers = (e: KeyboardEvent) => {
-	// 	if (['1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(e.key)) {
-	// 		board[row][column] = parseInt(e.key, 10);
-	// 	}
-	// };
-
-	// onMount(() => {
-	// 	window.addEventListener('keydown', handleArrowKeys);
-
-	// 	return () => {
-	// 		window.removeEventListener('keydown', handleArrowKeys);
-	// 	};
-	// });
-
-	// onMount(() => {
-	// 	window.addEventListener('keydown', handleNumbers);
-
-	// 	return () => {
-	// 		window.removeEventListener('keydown', handleNumbers);
-	// 	};
-	// });
+  let reset = () => {
+    board = new Board();
+    startTime = undefined;
+    endTime = undefined;
+  };
 </script>
 
-<div class="container">
-	{#each board as r, i}
-		<div class="row">
-			{#each r as square, j}
-				<Square
-					clicked={clicked[i][j]}
-					{square}
-					onClick={() => (clicked = click(clicked, board, i, j))}
-				/>
-			{/each}
-		</div>
-	{/each}
+<div class="mx-auto flex w-fit flex-col items-center gap-4 py-4">
+  <div class="relative flex w-full flex-row items-center justify-center">
+    <Timer {startTime} {endTime} />
+
+    <button on:click={reset} class="w-fit rounded-lg bg-blue-500 px-4 py-2 text-white">Reset</button
+    >
+  </div>
+
+  <div class="mx-auto w-fit border border-black">
+    {#each board.board as r, i}
+      <div class="flex flex-row">
+        {#each r as square, j}
+          <Square
+            {square}
+            onClick={() => {
+              if (startTime === undefined) {
+                startTime = Date.now();
+              }
+              square.click();
+              board = board;
+              if ((board.status === 'won' || board.status === 'lost') && endTime === undefined) {
+                endTime = Date.now();
+              }
+            }}
+          />
+        {/each}
+      </div>
+    {/each}
+  </div>
 </div>
-
-<button on:click={() => ([board, clicked] = initBoard())}>Reset</button>
-
-<style>
-	.row {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.container {
-		border: 0.5px solid black;
-		width: fit-content;
-		margin: 0px auto;
-	}
-
-	.selected {
-		background-color: yellow;
-	}
-</style>

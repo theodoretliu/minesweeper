@@ -1,120 +1,164 @@
 import { getRandomInt, arrayIncludesTuple } from '$lib/foo';
 
-interface Mine {
-	type: 'mine';
-}
+const NUM_MINES = 40;
+const DIMENSION = 16;
 
-interface Count {
-	type: 'count';
-	count: number;
-}
+export class Square {
+  mine: boolean;
+  status: 'not revealed' | 'revealed' | 'flagged';
+  board: Board;
+  i: number;
+  j: number;
 
-export type Square = Mine | Count;
+  constructor(board: Board, i: number, j: number) {
+    this.mine = false;
+    this.board = board;
+    this.status = 'not revealed';
+    this.i = i;
+    this.j = j;
+  }
+
+  get numMineNeighbors() {
+    return this.board.numMineNeighbors(this.i, this.j);
+  }
+
+  click = () => {
+    this.board.click(this.i, this.j);
+  };
+
+  rightClick = () => {
+    if (this.status === 'not revealed') {
+      this.status = 'flagged';
+    } else if (this.status === 'flagged') {
+      this.status = 'not revealed';
+    }
+  };
+}
 
 const deltas = [
-	[-1, 1],
-	[-1, 0],
-	[-1, -1],
-	[0, -1],
-	[0, 1],
-	[1, 1],
-	[1, 0],
-	[1, -1]
+  [-1, 1],
+  [-1, 0],
+  [-1, -1],
+  [0, -1],
+  [0, 1],
+  [1, 1],
+  [1, 0],
+  [1, -1]
 ];
 
-export function initBoard(): [Array<Array<Square>>, Array<Array<boolean>>] {
-	let board: Array<Array<Square>> = [];
-	for (let i = 0; i < 10; ++i) {
-		let row: Array<Square> = [];
+export class Board {
+  board: Array<Array<Square>>;
 
-		for (let j = 0; j < 10; j++) {
-			row.push({ type: 'count', count: 0 });
-		}
-		board.push(row);
-	}
+  constructor() {
+    this.board = this.initBoard();
+  }
 
-	// generating mine locations
-	let count = 0;
+  initBoard = () => {
+    let board: Array<Array<Square>> = [];
+    for (let i = 0; i < DIMENSION; ++i) {
+      let row: Array<Square> = [];
 
-	let mines: Array<[number, number]> = [];
-	while (count < 10) {
-		let coord;
-		do {
-			coord = [getRandomInt(10), getRandomInt(10)];
-		} while (arrayIncludesTuple(mines, coord));
+      for (let j = 0; j < DIMENSION; j++) {
+        row.push(new Square(this, i, j));
+      }
 
-		count++;
+      board.push(row);
+    }
 
-		mines.push(coord);
-	}
+    // generating mine locations
+    let count = 0;
 
-	// setting mines
-	for (let [x, y] of mines) {
-		board[x][y] = { type: 'mine' };
-	}
+    let mines: Array<[number, number]> = [];
+    while (count < NUM_MINES) {
+      let coord;
+      do {
+        coord = [getRandomInt(DIMENSION), getRandomInt(DIMENSION)];
+      } while (arrayIncludesTuple(mines, coord));
 
-	// getting mine counts
-	for (let i = 0; i < 10; i++) {
-		for (let j = 0; j < 10; j++) {
-			let square = board[i][j];
+      count++;
 
-			if (square.type === 'count') {
-				let numMines = 0;
+      mines.push(coord);
+    }
 
-				for (let [deltaX, deltaY] of deltas) {
-					let [newX, newY] = [i + deltaX, j + deltaY];
+    // setting mines
+    for (let [x, y] of mines) {
+      board[x][y].mine = true;
+    }
 
-					if (
-						0 <= newX &&
-						newX < 10 &&
-						0 <= newY &&
-						newY < 10 &&
-						board[newX][newY].type === 'mine'
-					) {
-						numMines++;
-					}
-				}
-				square.count = numMines;
-			}
-		}
-	}
+    return board;
+  };
 
-	let clicked: Array<Array<boolean>> = [];
+  numMineNeighbors = (i: number, j: number) => {
+    let count = 0;
+    for (let [deltaX, deltaY] of deltas) {
+      let newX = i + deltaX;
+      let newY = j + deltaY;
 
-	for (let i = 0; i < 10; i++) {
-		clicked.push(new Array<boolean>(10).fill(false));
-	}
+      if (newX < 0 || newX >= this.board.length || newY < 0 || newY >= this.board[0].length) {
+        continue;
+      }
 
-	return [board, clicked];
-}
+      if (this.board[newX][newY].mine) {
+        count++;
+      }
+    }
 
-export function click(
-	clicked: Array<Array<boolean>>,
-	board: Array<Array<Square>>,
-	i: number,
-	j: number
-) {
-	if (i < 0 || i >= 10 || j < 0 || j >= 10) {
-		return clicked;
-	}
+    return count;
+  };
 
-	if (clicked[i][j]) {
-		return clicked;
-	}
+  click = (i: number, j: number) => {
+    if (this.status === 'won' || this.status === 'lost') {
+      return;
+    }
 
-	let square = board[i][j];
+    if (i < 0 || i >= this.board.length || j < 0 || j >= this.board[0].length) {
+      return;
+    }
 
-	clicked[i][j] = true;
+    if (this.board[i][j].status !== 'not revealed') {
+      return;
+    }
 
-	if (square.type === 'mine') {
-		return clicked;
-	}
+    this.board[i][j].status = 'revealed';
 
-	if (square.type === 'count' && square.count === 0) {
-		for (let [deltaX, deltaY] of deltas) {
-			click(clicked, board, i + deltaX, j + deltaY);
-		}
-	}
+    if (this.board[i][j].mine) {
+      return;
+    }
 
-	return clicked;
+    if (this.board[i][j].numMineNeighbors === 0) {
+      for (let [deltaX, deltaY] of deltas) {
+        this.click(i + deltaX, j + deltaY);
+      }
+    }
+
+    return;
+  };
+
+  get status() {
+    if (this.board.every((row) => row.every((square) => square.status === 'not revealed'))) {
+      return 'not started' as const;
+    }
+
+    for (let row of this.board) {
+      for (let square of row) {
+        if (square.status === 'revealed' && square.mine) {
+          return 'lost' as const;
+        }
+      }
+    }
+
+    if (
+      this.board.every((row) =>
+        row.every(
+          (square) =>
+            ((square.status === 'not revealed' || square.status === 'flagged') && square.mine) ||
+            (!square.mine && square.status === 'revealed')
+        )
+      )
+    ) {
+      return 'won';
+    }
+
+    return 'playing';
+  }
 }
